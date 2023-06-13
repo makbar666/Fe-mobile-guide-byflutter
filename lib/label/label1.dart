@@ -1,32 +1,32 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:loading_gifs/loading_gifs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
-import 'Page2.dart';
-import 'article_search_delegate.dart';
-import 'profil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'viewArticle2new.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_profile_picture/flutter_profile_picture.dart';
-import 'article.dart';
 
-class Page1 extends StatefulWidget {
+import '../profil.dart';
+import './../viewArticle2new.dart';
+import './../article.dart';
+
+class Label1 extends StatefulWidget {
+  const Label1({super.key});
+
   @override
-  _Page1State createState() => _Page1State();
+  State<Label1> createState() => _Label1State();
 }
 
 late TextEditingController _searchController;
 
 final blogId = '2724810228291298258';
 final apiKey = 'AIzaSyAptK7bUXkAZL4UAY31Xfw0fP4xkEa9VTc';
+final label = 'Korea';
 
 // Fungsi untuk mengambil data dari API
 Future<List<Article>> fetchArticles() async {
   final url =
-      'https://www.googleapis.com/blogger/v3/blogs/$blogId/posts?key=$apiKey&maxResults=50';
+      'https://www.googleapis.com/blogger/v3/blogs/$blogId/posts/search?q=label:$label&key=$apiKey&maxResults=50';
 
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
@@ -53,12 +53,6 @@ Future<List<Article>> fetchArticles() async {
   } else {
     throw Exception('Failed to fetch articles');
   }
-}
-
-String _getShortContent(String content) {
-  // Mengambil substring pertama dengan panjang tertentu
-  return content.replaceAll(
-      RegExp(r'<[^>]*>'), ''); // Menghapus tag HTML dari konten
 }
 
 // Fungsi Search untuk mencari artikel dari API
@@ -94,7 +88,13 @@ Future<List<Article>> searchArticles(String query) async {
   }
 }
 
-class _Page1State extends State<Page1> {
+String _getShortContent(String content) {
+  // Mengambil substring pertama dengan panjang tertentu
+  return content.replaceAll(
+      RegExp(r'<[^>]*>'), ''); // Menghapus tag HTML dari konten
+}
+
+class _Label1State extends State<Label1> {
   late Future<List<Article>> _futureArticles;
   late List<Article> _articles = [];
 
@@ -165,21 +165,31 @@ class _Page1State extends State<Page1> {
       home: Scaffold(
         backgroundColor: Color(0xFFF3F4F8),
         appBar: AppBar(
-          title: Text('Guide by flutter',
-              style: TextStyle(
-                color: Color(0xFF1B1B1B),
-                fontSize: 24,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              )),
+          iconTheme: IconThemeData(color: Color(0xFF1B1B1B)),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            color: Color(0xFF1B1B1B),
+            onPressed: () {
+              // Fungsi untuk menavigasi ke halaman sebelumnya
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            'Korea',
+            style: TextStyle(
+              color: Color(0xFF1B1B1B),
+              fontSize: 24,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
           elevation: 0,
           backgroundColor: Color(0xFFFFFFFF),
           toolbarHeight: 68,
           actions: [
             IconButton(
               icon: Icon(Icons.search),
-              // icon color and size
               color: Color(0xFF1B1B1B),
               iconSize: 30,
               onPressed: () {
@@ -188,28 +198,6 @@ class _Page1State extends State<Page1> {
                   delegate: ArticleSearchDelegate(),
                 );
               },
-            ),
-            //  using flutter profile picture
-            GestureDetector(
-              child: ProfilePicture(
-                // import name from Profil.dart
-                name: _firstName.isNotEmpty || _lastName.isNotEmpty
-                    ? _firstName + ' ' + _lastName
-                    : 'Blank',
-                radius: 18,
-                fontsize: 16,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Profil(),
-                  ),
-                );
-              },
-            ),
-            SizedBox(
-              width: 10,
             ),
           ],
         ),
@@ -234,99 +222,6 @@ class _Page1State extends State<Page1> {
 
                       return Column(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Stack(
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(10, 5, 10, 5),
-                                      child: ImageSlideshow(
-                                        height: 230,
-                                        children: [
-                                          for (var article in articles.take(5))
-                                            Stack(
-                                              children: [
-                                                // ==================== Gambar Artikel ====================
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              10.0)),
-                                                  child: Image.network(
-                                                    article.imageUrl,
-                                                    height: 200.0,
-                                                    width: double.infinity,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-
-                                                //  ==================== Judul Artikel ====================
-                                                Positioned(
-                                                  bottom: 30.0,
-                                                  left: 0.0,
-                                                  right: 0.0,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        colors: [
-                                                          Colors.black
-                                                              .withOpacity(0.3),
-                                                          Colors.black
-                                                              .withOpacity(0.5)
-                                                        ],
-                                                        begin:
-                                                            Alignment.topCenter,
-                                                        end: Alignment
-                                                            .bottomCenter,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        bottomLeft:
-                                                            Radius.circular(
-                                                                10.0),
-                                                        bottomRight:
-                                                            Radius.circular(
-                                                                10.0),
-                                                      ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 5.0,
-                                                              horizontal: 10.0),
-                                                      child: Column(
-                                                        children: [
-                                                          Text(
-                                                            article.title,
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 16.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                // SizedBox(height: 10.0),
-                              ],
-                            ),
-                          ),
                           // ============================ List of articles ============================
                           ListView.builder(
                             shrinkWrap: true,
@@ -380,9 +275,8 @@ class _Page1State extends State<Page1> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              ViewArticle2(article: article),
-                                        ),
+                                            builder: (context) =>
+                                                ViewArticle2(article: article)),
                                       );
                                     }),
                               );
@@ -470,5 +364,181 @@ class _Page1State extends State<Page1> {
         ),
       ),
     );
+  }
+}
+
+class ArticleSearchDelegate extends SearchDelegate<List<Article>> {
+  @override
+  String get searchFieldLabel => 'Cari artikel';
+
+  @override
+  TextStyle get searchFieldStyle =>
+      TextStyle(color: Color(0xFF1B1B1B), fontSize: 16);
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return theme.copyWith(
+      appBarTheme: AppBarTheme(
+        color: Colors.white,
+        elevation: 0,
+      ),
+      textTheme: theme.textTheme.copyWith(
+        headline6: TextStyle(
+          color: Color(0xFF1B1B1B),
+          fontSize: 18,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        hintStyle: TextStyle(
+          color: Colors.grey.withOpacity(0.8),
+        ),
+        border: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.8), width: 1),
+        ),
+      ),
+      scaffoldBackgroundColor: Colors.white,
+    );
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        color: Color(0xFF1B1B1B),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      color: Color(0xFF1B1B1B),
+      onPressed: () {
+        close(context, []);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.isEmpty) {
+      return Center(
+        child: Text('Masukkan kata kunci pencarian'),
+      );
+    } else {
+      return FutureBuilder<List<Article>>(
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Gagal memuat data'),
+            );
+          } else {
+            final articles = snapshot.data ?? [];
+            if (articles.isEmpty) {
+              return Center(
+                child: Text('Tidak ada artikel yang ditemukan'),
+              );
+            } else {
+              return ListView.builder(
+                itemCount: articles.length,
+                itemBuilder: (context, index) {
+                  final article = articles[index];
+                  return ListTile(
+                    title: Text(article.title),
+                    subtitle: Text(article.content),
+                    onTap: () {},
+                  );
+                },
+              );
+            }
+          }
+        },
+      );
+    }
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isEmpty) {
+      return Center(
+        child: Text('Masukkan kata kunci pencarian'),
+      );
+    } else {
+      return FutureBuilder<List<Article>>(
+        future: searchArticles(query),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Failed to load articles'),
+            );
+          } else {
+            final articles = snapshot.data ?? [];
+            if (articles.isEmpty) {
+              return Center(
+                child: Text('No articles found'),
+              );
+            } else {
+              return ListView.builder(
+                itemCount: articles.length,
+                itemBuilder: (context, index) {
+                  final article = articles[index];
+                  return Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                    child: ListTile(
+                      leading: Transform.scale(
+                        scale: 1.0,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(5.0),
+                          child: FadeInImage.assetNetwork(
+                            placeholder:
+                                cupertinoActivityIndicator, // Gambar placeholder yang ditampilkan saat sedang memuat
+                            image: article.imageUrl,
+                            fit: BoxFit.cover,
+                            width: 80.0,
+                            height: 50.0,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        article.title,
+                        style: TextStyle(
+                          color: Color(0xFF1B1B1B),
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        _getShortContent(article.content),
+                        style: TextStyle(
+                          color: Colors.grey.withOpacity(1),
+                          fontSize: 14.0,
+                        ),
+                        maxLines: 2,
+                      ),
+                      onTap: () {},
+                    ),
+                  );
+                },
+              );
+            }
+          }
+        },
+      );
+    }
   }
 }

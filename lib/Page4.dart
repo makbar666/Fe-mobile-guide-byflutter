@@ -23,7 +23,6 @@ class _Page4State extends State<Page4> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Color(0xFF2C7873),
         appBar: AppBar(
           title: Text('Disukai',
               style: TextStyle(
@@ -47,19 +46,6 @@ class _Page4State extends State<Page4> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => Page2(),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(CupertinoIcons.person_crop_circle),
-              color: Color(0xFF1B1B1B),
-              iconSize: 30,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Profil(),
                   ),
                 );
               },

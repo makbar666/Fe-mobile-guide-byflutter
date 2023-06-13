@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'Page1.dart';
+import 'article.dart';
 
 class SavedArticles extends ChangeNotifier {
   List<Article> _savedArticles = [];

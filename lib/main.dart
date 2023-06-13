@@ -7,6 +7,7 @@ import 'Page1.dart';
 import 'Page2.dart';
 import 'Page3.dart';
 import 'Page4.dart';
+import 'article_search_delegate.dart';
 import 'saved_articles.dart';
 
 void main() {
@@ -44,6 +45,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
+  void _showArticleSearch() {
+    showSearch(
+      context: context,
+      delegate: ArticleSearchDelegate(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -56,7 +64,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 index: _currentIndex,
                 children: [
                   Page1(),
-                  Page2(),
+                  GestureDetector(
+                    onTap: () {
+                      _showArticleSearch();
+                    },
+                    child: Page2(),
+                  ),
                   Page3(),
                   Page4(),
                 ],
@@ -108,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     GButton(
                       icon: CupertinoIcons.search,
                       text: 'Cari',
+                      onPressed: _showArticleSearch,
                     ),
                     GButton(
                       icon: CupertinoIcons.square_list_fill,

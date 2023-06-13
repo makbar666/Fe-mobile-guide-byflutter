@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'Page1.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'Page4.dart';
-import 'myHomePage.dart';
 import 'saved_articles.dart';
+import 'article.dart';
 
 class ViewArticle2 extends StatefulWidget {
   final Article article;
