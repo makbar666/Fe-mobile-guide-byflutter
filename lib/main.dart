@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testing_gdrive/onboarding.dart';
 
 import 'Page1.dart';
 import 'Page2.dart';
@@ -11,27 +14,81 @@ import 'article_search_delegate.dart';
 import 'saved_articles.dart';
 
 void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     ChangeNotifierProvider(
       create: (_) => SavedArticles()..loadSavedArticles(),
       child: MyApp(),
     ),
   );
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
+  Future<bool> checkFirstSeen() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool _seen = (prefs.getBool('seenOnboarding') ?? false);
+
+    if (_seen) {
+      return false;
+    } else {
+      await prefs.setBool('seenOnboarding', true);
+      return true;
+    }
+  }
+
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Guide by Flutter',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
+    return FutureBuilder<bool>(
+      future: checkFirstSeen(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        } else {
+          if (snapshot.hasError) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                body: Center(
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+              ),
+            );
+          } else {
+            if (snapshot.data == true) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: OnboardingPage(),
+              );
+            } else {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: MyHomePage(),
+              );
+            }
+          }
+        }
+      },
     );
+    // return MaterialApp(
+    //   debugShowCheckedModeBanner: false,
+    //   title: 'Guide by Flutter',
+    //   theme: ThemeData(
+    //     primarySwatch: Colors.blue,
+    //   ),
+    //   home: OnboardingPage(),
+    //   // home: MyHomePage(),
+    // );
   }
 }
 
@@ -88,11 +145,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            // scrollDirection: Axis.horizontal,
             child: SafeArea(
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 1),
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
                 child: GNav(
                   onTabChange: (index) {
                     setState(() {
@@ -107,12 +164,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.grey[600], // unselected icon color
                   activeColor:
                       Color(0xFF1B1B1B), // selected icon and text color
-                  iconSize: 24, // tab button icon size
+                  // iconSize: 24, // tab button icon size
                   tabBackgroundColor: Color(0xFF1B1B1B)
                       .withOpacity(0.1), // selected tab background color
                   tabMargin: EdgeInsets.symmetric(vertical: 10),
                   padding: EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 14), // navigation bar padding
+                      horizontal: 20, vertical: 14), // navigation bar padding
                   tabs: [
                     GButton(
                       icon: Icons.home,
